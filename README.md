@@ -17,8 +17,7 @@ Prepare your API token before using this plugin (see [API: Basics and Authentica
 
 ## Example
 
-Assuming that the URL of application that you want download is rink.hockeyapp.net/manage/apps/1234abcd/app_versions/8899,
-
+Assuming that the URL of application that you want download is `rink.hockeyapp.net/manage/apps/1234abcd/app_versions/8899`,  
 you can download ipa file of the app by passing parameters like below.
 
 ```
