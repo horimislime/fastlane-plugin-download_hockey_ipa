@@ -1,8 +1,6 @@
 require 'faraday'
 require 'faraday_middleware'
 require 'json'
-require 'open-uri'
-require 'plist'
 
 module Fastlane
   module Actions
