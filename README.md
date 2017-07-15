@@ -12,28 +12,25 @@ fastlane add_plugin download_hockey_ipa
 
 ## About download_hockey_ipa
 
-A fastlane plugin that helps downloading .ipa from HockeyApp
-
-**Note to author:** Add a more detailed description about this plugin here. If your plugin contains multiple actions, make sure to mention them here.
+This plugin helps downloading yourapp.ipa from HockeyApp.  
+Prepare your API token before using this plugin (see [API: Basics and Authentication / Public API / Knowledge Base - HockeyApp Support](https://support.hockeyapp.net/kb/api/api-basics-and-authentication#authentication)).
 
 ## Example
 
-Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
+Assuming that the URL of application that you want download is rink.hockeyapp.net/manage/apps/1234abcd/app_versions/8899,
 
-**Note to author:** Please set up a sample project to make it easy for users to explore what your plugin does. Provide everything that is necessary to try out the plugin in this project (including a sample Xcode/Android project if necessary)
-
-## Run tests for this plugin
-
-To run both the tests, and code style validation, run
+you can download ipa file of the app by passing parameters like below.
 
 ```
-rake
+download_hockey_ipa(
+  api_token: your_api_token,
+  app_id: "1234abcd",
+  app_build_id: "8899",
+  ipa_file_path: "/Users/yourname/Desktop/yourapp.ipa"
+)
 ```
 
-To automatically fix many of the styling issues, use
-```
-rubocop -a
-```
+The ipa file is saved to specified location.
 
 ## Issues and Feedback
 
