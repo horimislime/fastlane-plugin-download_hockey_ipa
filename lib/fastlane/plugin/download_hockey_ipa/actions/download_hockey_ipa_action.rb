@@ -12,9 +12,9 @@ module Fastlane
       def self.run(params)
 
         api_token = params[:api_token]
-        build_number = params[:build_number]
-        public_identifier = params[:public_identifier]
-        ipa_path = params[:ipa_path]
+        app_id = params[:app_id]
+        app_build_id = params[:app_build_id]
+        ipa_file_path = params[:ipa_file_path]
 
         conn = Faraday.new(:url => HOST_NAME) do |faraday|
           faraday.request  :multipart
@@ -25,26 +25,27 @@ module Fastlane
         end
 
         versions = conn.get do |req|
-          req.url("/api/2/apps/#{public_identifier}/app_versions/")
+          req.url("/api/2/apps/#{app_id}/app_versions/")
         end
 
         versions_json = JSON.parse(versions.body)
-        version_id = versions_json['app_versions'].map { |version|
+        version_id = versions_json['app_versions']
+        .map { |version|
           version['id'].to_s
         }
         .select { |id|
-          id == build_number
+          id == app_build_id
         }.first
 
         response = conn.get do |req|
-          req.url "/api/2/apps/#{public_identifier}/app_versions/#{version_id}"
+          req.url "/api/2/apps/#{app_id}/app_versions/#{version_id}"
         end
 
         if response.status == 200
           result = Plist::parse_xml(response.body)
           download_url = result['items'][0]['assets'][0]['url']
 
-          File.open(ipa_path, "wb") do |saved_file|
+          File.open(ipa_file_path, "wb") do |saved_file|
             open(download_url, "rb") do |read_file|
               saved_file.write(read_file.read)
             end
@@ -74,27 +75,27 @@ module Fastlane
                                     UI.user_error!("No API token for Hockey given, pass using `api_token: 'token'`") if value.to_s.length == 0
                                   end),
 
-          FastlaneCore::ConfigItem.new(key: :public_identifier,
-                                  env_name: "PUBLIC_IDENTIFIER_TO_DOWNLOAD_IPA",
-                               description: "Public identifier of the app you want to download",
+          FastlaneCore::ConfigItem.new(key: :app_id,
+                                  env_name: "HOCKEY_IPA_DOWNLOAD_APP_ID",
+                               description: "Application identifier of the app you want to download",
                                   optional: false,
                                       type: String,
                               verify_block: proc do |value|
-                                    UI.user_error!("No public identifier for Hockey given, pass using `public_identifier: 'public_identifier'`") if value.to_s.length == 0
+                                    UI.user_error!("No app_id is given, pass using `app_id: 'id'`") if value.to_s.length == 0
                                   end),
 
-          FastlaneCore::ConfigItem.new(key: :ipa_path,
-                                  env_name: "IPA_DOWNLOAD_PATH",
+          FastlaneCore::ConfigItem.new(key: :app_build_id,
+                                  env_name: "HOCKEY_IPA_APP_BUILD_ID",
+                               description: "The unique id of the specified app, which can be found in the app's URL (e.g. rink.hockeyapp.net/manage/apps/[app_id]/app_versions/[app_build_id])",
+                                  optional: false,
+                                      type: String),
+
+          FastlaneCore::ConfigItem.new(key: :ipa_file_path,
+                                  env_name: "HOCKEY_IPA_DOWNLOAD_PATH",
                                description: "Path to your symbols file",
                                   optional: false,
                                       type: String,
-                             default_value: File.expand_path('.')),
-
-          FastlaneCore::ConfigItem.new(key: :build_number,
-                                  env_name: "IPA_BUILD_NUMBER",
-                               description: "The build number for the ipa you want to download",
-                                  optional: false,
-                                      type: String)
+                             default_value: File.expand_path('.'))
         ]
       end
 
