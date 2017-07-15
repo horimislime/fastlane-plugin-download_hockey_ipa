@@ -19,7 +19,9 @@ module Fastlane
         conn = Faraday.new(:url => HOST_NAME) do |faraday|
           faraday.request  :multipart
           faraday.request  :url_encoded
-          faraday.response :logger
+          logger = Logger.new(STDOUT)
+          logger.level = Logger::INFO
+          faraday.response :logger, logger
           faraday.adapter  Faraday.default_adapter
           faraday.headers['X-HockeyAppToken'] = api_token
         end
@@ -50,7 +52,7 @@ module Fastlane
               saved_file.write(read_file.read)
             end
           end
-          UI.success "Successfully downloaded ipa."
+          UI.success "Successfully downloaded ipa 🍺"
         else
           UI.error "Something went wrong with API request. Status code is #{response.status}"
         end
